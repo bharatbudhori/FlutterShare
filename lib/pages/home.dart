@@ -5,12 +5,15 @@ import 'package:flutter_share/pages/activity_feed.dart';
 import 'package:flutter_share/pages/create_account.dart';
 import 'package:flutter_share/pages/profile.dart';
 import 'package:flutter_share/pages/search.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter_share/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+Reference storageRef = FirebaseStorage.instance.ref();
+final postRef = FirebaseFirestore.instance.collection('posts');
 final usersRef = FirebaseFirestore.instance.collection('users');
 final timestamp = DateTime.now();
 User currentUser;
@@ -131,7 +134,7 @@ class _HomeState extends State<Home> {
           //Timeline(),
           ElevatedButton(onPressed: logout, child: Text('LogOut')),
           ActivityFeed(),
-          Upload(),
+          Upload(currentUser: currentUser),
           Search(),
           Profile(),
         ],

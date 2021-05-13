@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_share/models/user.dart';
-import 'package:flutter_share/widgets/custom_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import './home.dart';
