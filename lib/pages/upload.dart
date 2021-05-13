@@ -10,6 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
 import 'package:uuid/uuid.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class Upload extends StatefulWidget {
   final User currentUser;
@@ -262,7 +264,7 @@ class _UploadState extends State<Upload> {
             height: 100,
             alignment: Alignment.center,
             child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: getUserLocation,
                 icon: Icon(Icons.gps_fixed),
                 label: Text(
                   'Use Current Location',
@@ -274,6 +276,18 @@ class _UploadState extends State<Upload> {
         ],
       ),
     );
+  }
+
+  getUserLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placemark = placemarks[0];
+    String formattedAdress = '${placemark.locality},${placemark.country}';
+
+    //'${placemark.subLocality}, ${placemark.thoroughfare}, ${placemark.subLocality}, ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea}, ${placemark.postalCode}, ${placemark.country}';
+    locationController.text = formattedAdress;
   }
 
   @override
