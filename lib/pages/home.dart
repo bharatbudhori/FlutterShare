@@ -1,13 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_share/models/user.dart';
 import 'package:flutter_share/pages/activity_feed.dart';
+import 'package:flutter_share/pages/create_account.dart';
 import 'package:flutter_share/pages/profile.dart';
 import 'package:flutter_share/pages/search.dart';
 import 'package:flutter_share/pages/timeline.dart';
 import 'package:flutter_share/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final usersRef = FirebaseFirestore.instance.collection('users');
+final timestamp = DateTime.now();
+User currentUser;
 
 class Home extends StatefulWidget {
   @override
@@ -52,6 +58,7 @@ class _HomeState extends State<Home> {
 
   void handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
+      createUserInFirestore();
       //print(account);
       setState(() {
         isAuth = true;
@@ -61,6 +68,38 @@ class _HomeState extends State<Home> {
         isAuth = false;
       });
     }
+  }
+
+  createUserInFirestore() async {
+    // 1) check if user exists in users collection in database(acc. to their id)
+    final user = googleSignIn.currentUser;
+    DocumentSnapshot userDoc = await usersRef.doc(user.id).get();
+
+    if (!userDoc.exists) {
+      //2) if user dosen't exists we want to take them to create user screen.
+
+      final username = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => CreateAccount(),
+        ),
+      );
+      //3) get username from create account, use it to make new user document in user collection
+
+      usersRef.doc(user.id).set({
+        'id': user.id,
+        'username': username,
+        'photoUrl': user.photoUrl,
+        'email': user.email,
+        'displayName': user.displayName,
+        'bio': '',
+        'timeStamp': timestamp,
+      });
+      userDoc = await usersRef.doc(user.id).get();
+    }
+    currentUser = User.fromDocument(userDoc);
+    print(currentUser);
+    print(currentUser.username);
   }
 
   login() {
@@ -89,7 +128,8 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: PageView(
         children: [
-          Timeline(),
+          //Timeline(),
+          ElevatedButton(onPressed: logout, child: Text('LogOut')),
           ActivityFeed(),
           Upload(),
           Search(),
