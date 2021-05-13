@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -7,17 +9,28 @@ class CreateAccount extends StatefulWidget {
 
 class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldkey = GlobalKey<ScaffoldState>();
   String username;
 
   submit() {
-    _formKey.currentState.save();
-    Navigator.pop(context, username);
+    final form = _formKey.currentState;
+
+    if (form.validate()) {
+      form.save();
+      final snackBar = SnackBar(content: Text('Welcome $username !!'));
+      _scaffoldkey.currentState.showSnackBar(snackBar);
+      Timer(Duration(seconds: 2), () {
+        Navigator.pop(context, username);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext parentContext) {
     return Scaffold(
+      key: _scaffoldkey,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Set Up Profile'),
         centerTitle: true,
         backgroundColor: Colors.teal,
@@ -41,12 +54,16 @@ class _CreateAccountState extends State<CreateAccount> {
                   child: Container(
                     child: Form(
                       key: _formKey,
+                      autovalidate: true,
                       child: TextFormField(
                         validator: (value) {
-                          if (value.isEmpty || value.length < 4) {
-                            return 'Please enter atleast 4 character';
+                          if (value.isEmpty || value.trim().length < 4) {
+                            return 'Username too short';
+                          } else if (value.trim().length > 12) {
+                            return 'USername too long';
+                          } else {
+                            return null;
                           }
-                          return null;
                         },
                         onSaved: (value) => username = value,
                         decoration: InputDecoration(

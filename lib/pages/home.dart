@@ -5,7 +5,7 @@ import 'package:flutter_share/pages/activity_feed.dart';
 import 'package:flutter_share/pages/create_account.dart';
 import 'package:flutter_share/pages/profile.dart';
 import 'package:flutter_share/pages/search.dart';
-import 'package:flutter_share/pages/timeline.dart';
+
 import 'package:flutter_share/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
