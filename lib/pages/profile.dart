@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_share/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_share/pages/edit_profile.dart';
+import 'package:flutter_share/widgets/post.dart';
+import 'package:flutter_share/widgets/post_tile.dart';
 
 import './home.dart';
 import '../models/user.dart';
@@ -16,6 +18,35 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser.id;
+  bool isLoading = false;
+  int postCount = 0;
+  List<Post> posts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getProfilePost();
+  }
+
+  getProfilePost() async {
+    setState(() {
+      isLoading = true;
+    });
+    final snapshot = await postRef
+        .doc(widget.profileId)
+        .collection('userPosts')
+        .orderBy(
+          'timestamp',
+          descending: true,
+        )
+        .get();
+    setState(() {
+      isLoading = false;
+      postCount = snapshot.docs.length;
+      posts = snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();
+      print('$posts!!!!!!!!');
+    });
+  }
 
   buildCountColumn(String label, int count) {
     return Column(
@@ -172,6 +203,30 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  buildProfilePost() {
+    if (isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    List<GridTile> gridTiles = [];
+    posts.forEach((post) {
+      gridTiles.add(GridTile(child: PostTile(post)));
+    });
+    return GridView.count(
+      crossAxisCount: 3,
+      childAspectRatio: 1.0,
+      mainAxisSpacing: 1.5,
+      crossAxisSpacing: 1.5,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      children: gridTiles,
+    );
+    //   return Column(
+    //     children: posts,
+    //   );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,6 +241,10 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: [
           buildProfileHeader(),
+          Divider(
+            height: 0.0,
+          ),
+          buildProfilePost(),
         ],
       ),
     );
