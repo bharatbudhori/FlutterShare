@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_share/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_share/pages/edit_profile.dart';
 
 import './home.dart';
+import '../models/user.dart';
 
 class Profile extends StatefulWidget {
   final String profileId;
@@ -13,6 +15,8 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  final String currentUserId = currentUser.id;
+
   buildCountColumn(String label, int count) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -40,7 +44,51 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  editProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfile(currentUserId: currentUserId),
+      ),
+    );
+  }
+
+  Container buildButton({String text, Function function}) {
+    return Container(
+      padding: EdgeInsets.only(top: 2),
+      child: TextButton(
+        onPressed: function,
+        child: Container(
+          width: 250,
+          height: 27,
+          alignment: Alignment.center,
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            border: Border.all(color: Colors.blue),
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+      ),
+    );
+  }
+
   buildProfileButton() {
+    //if we are viewing our own profile, we should show edit profile button
+    bool isProfileOwner = currentUserId == widget.profileId;
+
+    if (isProfileOwner) {
+      return buildButton(
+        text: 'Edit Profile',
+        function: editProfile,
+      );
+    }
     return Text('Profile');
   }
 
@@ -104,16 +152,6 @@ class _ProfileState extends State<Profile> {
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.only(top: 4),
                 child: Text(
-                  user.username,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(top: 4),
-                child: Text(
                   user.displayName,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -138,7 +176,6 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [IconButton(icon: Icon(Icons.exit_to_app), onPressed: () {})],
         title: Text(
           'Profile',
           style: TextStyle(fontSize: 25),

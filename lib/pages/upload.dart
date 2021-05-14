@@ -83,28 +83,32 @@ class _UploadState extends State<Upload> {
         });
   }
 
-  Container buildSplashScreen() {
-    return Container(
-      color: Theme.of(context).accentColor.withOpacity(0.6),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            'assets/images/upload.svg',
-            height: 260,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: ElevatedButton(
-              onPressed: () => selectImage(context),
-              child: Text(
-                'Upload Image',
-                style: TextStyle(color: Colors.white, fontSize: 22),
+  ListView buildSplashScreen() {
+    return ListView(
+      children: [
+        Container(
+          color: Theme.of(context).accentColor.withOpacity(0.6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/upload.svg',
+                height: 260,
               ),
-            ),
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: ElevatedButton(
+                  onPressed: () => selectImage(context),
+                  child: Text(
+                    'Upload Image',
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
