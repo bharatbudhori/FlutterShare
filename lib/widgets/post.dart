@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_share/models/user.dart';
 import 'package:flutter_share/pages/home.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_share/widgets/custom_image.dart';
+import 'package:animator/animator.dart';
 
 class Post extends StatefulWidget {
   final String postId;
@@ -45,8 +48,8 @@ class Post extends StatefulWidget {
       if (value == true) {
         count += 1;
       }
-      return count;
     });
+    return count;
   }
 
   @override
@@ -63,6 +66,7 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
+  final String currentUserId = currentUser?.id;
   final String postId;
   final String ownerId;
   final String username;
@@ -71,6 +75,8 @@ class _PostState extends State<Post> {
   final String mediaUrl;
   int likeCount;
   Map likes;
+  bool isLiked;
+  bool showHearts = false;
 
   _PostState({
     this.postId,
@@ -87,7 +93,7 @@ class _PostState extends State<Post> {
     return FutureBuilder(
       future: usersRef.doc(ownerId).get(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(),
           );
@@ -121,13 +127,70 @@ class _PostState extends State<Post> {
     );
   }
 
+  handleLikePost() {
+    bool _isLiked = likes[currentUserId] == true;
+    if (_isLiked) {
+      postRef
+          .doc(ownerId)
+          .collection('userPosts')
+          .doc(postId)
+          .update({'likes.$currentUserId': false});
+      setState(() {
+        likeCount -= 1;
+        isLiked = false;
+        likes[currentUserId] = false;
+      });
+    } else if (!_isLiked) {
+      postRef
+          .doc(ownerId)
+          .collection('userPosts')
+          .doc(postId)
+          .update({'likes.$currentUserId': true});
+      setState(() {
+        likeCount += 1;
+        isLiked = true;
+        likes[currentUserId] = true;
+        showHearts = true;
+      });
+      Timer(Duration(milliseconds: 500), () {
+        setState(() {
+          showHearts = false;
+        });
+      });
+    }
+  }
+
   buildPostImage() {
     return GestureDetector(
-      onDoubleTap: () {},
+      onDoubleTap: handleLikePost,
       child: Stack(
         alignment: Alignment.center,
         children: [
           cachedNetworkImage(mediaUrl),
+          showHearts
+              ? Animator(
+                  duration: Duration(milliseconds: 500),
+                  tween: Tween(begin: 0.4, end: 1.4),
+                  curve: Curves.elasticOut,
+                  cycles: 0,
+                  builder: (context, animatorState, ch) => Transform.scale(
+                    scale: animatorState.value,
+                    child: Icon(
+                      Icons.favorite,
+                      size: 100,
+                      color: Colors.red,
+                    ),
+                  ),
+                )
+              : Text(''),
+
+          // showHearts
+          //     ? Icon(
+          //         Icons.favorite,
+          //         size: 100,
+          //         color: Colors.redAccent,
+          //       )
+          //     : Text(''),
         ],
       ),
     );
@@ -143,9 +206,9 @@ class _PostState extends State<Post> {
               padding: EdgeInsets.only(top: 40, left: 20),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: handleLikePost,
               child: Icon(
-                Icons.favorite_border,
+                isLiked ? Icons.favorite : Icons.favorite_border,
                 size: 28,
                 color: Colors.pink,
               ),
@@ -203,6 +266,7 @@ class _PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
+    isLiked = (likes[currentUserId] == true);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
