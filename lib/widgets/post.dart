@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_share/models/user.dart';
+import 'package:flutter_share/pages/comments.dart';
 import 'package:flutter_share/pages/home.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_share/widgets/custom_image.dart';
@@ -217,7 +218,12 @@ class _PostState extends State<Post> {
               padding: EdgeInsets.only(right: 20),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () => showComments(
+                context,
+                postId: postId,
+                ownerId: ownerId,
+                mediaUrl: mediaUrl,
+              ),
               child: Icon(
                 Icons.comment,
                 size: 28,
@@ -276,4 +282,19 @@ class _PostState extends State<Post> {
       ],
     );
   }
+}
+
+showComments(
+  BuildContext context, {
+  String postId,
+  String ownerId,
+  String mediaUrl,
+}) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+    return Comments(
+      postId: postId,
+      postOwnerId: ownerId,
+      postMediaUrl: mediaUrl,
+    );
+  }));
 }

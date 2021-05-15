@@ -87,6 +87,7 @@ class _UploadState extends State<Upload> {
     return ListView(
       children: [
         Container(
+          height: 700,
           color: Theme.of(context).accentColor.withOpacity(0.6),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -94,6 +95,7 @@ class _UploadState extends State<Upload> {
               SvgPicture.asset(
                 'assets/images/upload.svg',
                 height: 260,
+                fit: BoxFit.cover,
               ),
               Padding(
                 padding: EdgeInsets.only(top: 20),

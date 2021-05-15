@@ -6,6 +6,7 @@ import 'package:flutter_share/pages/home.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
