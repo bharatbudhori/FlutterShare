@@ -13,7 +13,7 @@ class ActivityFeed extends StatefulWidget {
 
 class _ActivityFeedState extends State<ActivityFeed> {
   getActivityFeed() async {
-    final snapshot = await activityFeedRef
+    dynamic snapshot = await activityFeedRef
         .doc(currentUser.id)
         .collection('feedItems')
         .orderBy('timestamp', descending: true)
@@ -23,6 +23,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
     snapshot.docs.forEach((doc) {
       feedItems.add(ActivityFeedItem.fromDocument(doc));
     });
+
     return feedItems;
   }
 
@@ -40,13 +41,14 @@ class _ActivityFeedState extends State<ActivityFeed> {
         child: FutureBuilder(
             future: getActivityFeed(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
                   child: CircularProgressIndicator(),
                 );
               }
+              print('Data available');
               return ListView(
-                children: snapshot.data,
+                children: snapshot.data ?? [Text('null')],
               );
             }),
       ),
