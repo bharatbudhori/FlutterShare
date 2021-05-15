@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_share/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_share/pages/activity_feed.dart';
 
 import './home.dart';
 
@@ -126,7 +127,9 @@ class UserResult extends StatelessWidget {
       child: Column(
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              showProfile(context, profileId: user.id);
+            },
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: Colors.grey,

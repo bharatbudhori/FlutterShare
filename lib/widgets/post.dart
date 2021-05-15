@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_share/models/user.dart';
+import 'package:flutter_share/pages/activity_feed.dart';
 import 'package:flutter_share/pages/comments.dart';
 import 'package:flutter_share/pages/home.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -106,7 +107,9 @@ class _PostState extends State<Post> {
             backgroundImage: CachedNetworkImageProvider(user.photoUrl),
           ),
           title: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              showProfile(context, profileId: user.id);
+            },
             child: Text(
               user.username,
               style: TextStyle(
@@ -136,6 +139,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .doc(postId)
           .update({'likes.$currentUserId': false});
+      removeLikeToActivityFeed();
       setState(() {
         likeCount -= 1;
         isLiked = false;
@@ -147,6 +151,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .doc(postId)
           .update({'likes.$currentUserId': true});
+      addLikeToActivityFeed();
       setState(() {
         likeCount += 1;
         isLiked = true;
@@ -157,6 +162,37 @@ class _PostState extends State<Post> {
         setState(() {
           showHearts = false;
         });
+      });
+    }
+  }
+
+  addLikeToActivityFeed() {
+    bool isNotPostOwner = currentUserId != ownerId;
+    if (isNotPostOwner) {
+      activityFeedRef.doc(ownerId).collection('feedItems').doc(postId).set({
+        'type': 'like',
+        'username': currentUser.username,
+        'userId': currentUser.id,
+        'userProfileImg': currentUser.photoUrl,
+        'postId': postId,
+        'mediaUrl': mediaUrl,
+        'timestamp': timestamp,
+      });
+    }
+  }
+
+  removeLikeToActivityFeed() {
+    bool isNotPostOwner = currentUserId != ownerId;
+    if (isNotPostOwner) {
+      activityFeedRef
+          .doc(ownerId)
+          .collection('feedItems')
+          .doc(postId)
+          .get()
+          .then((value) {
+        if (value.exists) {
+          value.reference.delete();
+        }
       });
     }
   }

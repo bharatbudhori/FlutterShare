@@ -16,6 +16,7 @@ Reference storageRef = FirebaseStorage.instance.ref();
 final postRef = FirebaseFirestore.instance.collection('posts');
 final usersRef = FirebaseFirestore.instance.collection('users');
 final commentsRef = FirebaseFirestore.instance.collection('comments');
+final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 final timestamp = DateTime.now();
 User currentUser;
 

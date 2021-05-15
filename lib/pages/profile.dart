@@ -154,7 +154,7 @@ class _ProfileState extends State<Profile> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            buildCountColumn('Posts', 0),
+                            buildCountColumn('Posts', posts.length),
                             buildCountColumn('Follower', 0),
                             buildCountColumn('Following', 0),
                           ],
